@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import PixelHeart from "@/components/PixelHeart";
 import TypingText from "@/components/TypingText";
 import InteractiveGrid from "@/components/InteractiveGrid";
 import CoinRain from "@/components/CoinRain";
 import GlassShine from "@/components/GlassShine";
+import { useWallet } from "@/blockchain/providers/WalletProvider";
+import { useAttestation } from "@/blockchain/hooks/useAttestation";
 
 const SLOGANS = [
   "Your heartbeat. On-chain. Zero knowledge.",
@@ -49,6 +52,101 @@ function GlassBlobs() {
 }
 
 export default function Home() {
+  const { address, isConnected, isInstalled, connect } = useWallet();
+  const { submitAttestation, isLoading } = useAttestation();
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<any>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [selectedSource, setSelectedSource] = useState<"demo" | "upload">("demo");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleConnectWallet = async () => {
+    if (!isInstalled) {
+      window.open("https://metamask.io", "_blank");
+      return;
+    }
+
+    setIsConnecting(true);
+    setError(null);
+    try {
+      await connect();
+    } catch (err: any) {
+      setError(err.message || "Failed to connect wallet");
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setSelectedSource("upload");
+    }
+  };
+
+  const handleGenerateProof = async () => {
+    if (!isConnected) {
+      setError("Please connect your wallet first");
+      return;
+    }
+
+    setError(null);
+    setResult(null);
+
+    try {
+      // Sample heart rate data for demo
+      const sampleHRData = [
+        { timestamp: "2024-01-01T10:00:00Z", bpm: 95 },
+        { timestamp: "2024-01-01T10:00:05Z", bpm: 100 },
+        { timestamp: "2024-01-01T10:00:10Z", bpm: 110 },
+        { timestamp: "2024-01-01T10:00:15Z", bpm: 120 },
+        { timestamp: "2024-01-01T10:00:20Z", bpm: 130 },
+        { timestamp: "2024-01-01T10:00:25Z", bpm: 140 },
+        { timestamp: "2024-01-01T10:00:30Z", bpm: 150 },
+        { timestamp: "2024-01-01T10:00:35Z", bpm: 155 },
+        { timestamp: "2024-01-01T10:00:40Z", bpm: 160 },
+        { timestamp: "2024-01-01T10:00:45Z", bpm: 165 },
+        { timestamp: "2024-01-01T10:00:50Z", bpm: 170 },
+        { timestamp: "2024-01-01T10:00:55Z", bpm: 168 },
+        { timestamp: "2024-01-01T10:01:00Z", bpm: 165 },
+        { timestamp: "2024-01-01T10:01:05Z", bpm: 160 },
+        { timestamp: "2024-01-01T10:01:10Z", bpm: 155 },
+      ];
+
+      // Step 1: Analyze with backend
+      const backendResponse = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hr_samples: sampleHRData }),
+      });
+
+      if (!backendResponse.ok) {
+        throw new Error("Backend analysis failed");
+      }
+
+      const backendData = await backendResponse.json();
+
+      // Step 2: Submit to blockchain
+      const blockchainResult = await submitAttestation({
+        activityType: backendData.attestation.activity_type,
+        durationMins: backendData.attestation.duration_mins,
+        avgHr: backendData.attestation.avg_hr,
+        maxHr: backendData.attestation.max_hr,
+        minHr: backendData.attestation.min_hr,
+        hrZoneDistribution: backendData.attestation.hr_zone_distribution,
+        recoveryScore: backendData.attestation.recovery_score,
+        confidence: backendData.attestation.confidence,
+        dataHash: backendData.attestation.data_hash,
+        ipfsHash: "user-submitted-" + Date.now(),
+      });
+
+      setResult(blockchainResult);
+    } catch (err: any) {
+      setError(err.message || "Failed to generate proof");
+    }
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <GlassBlobs />
@@ -93,12 +191,20 @@ export default function Home() {
 
         {/* CTA buttons */}
         <div className="flex gap-4 mb-20">
-          <button className="glass-pink-solid px-8 py-3 text-pink-dark font-mono font-bold text-sm tracking-wider uppercase rounded-lg cursor-pointer transition-all">
+          <button 
+            onClick={() => document.getElementById('generate')?.scrollIntoView({ behavior: 'smooth' })}
+            className="glass-pink-solid px-8 py-3 text-pink-dark font-mono font-bold text-sm tracking-wider uppercase rounded-lg cursor-pointer transition-all hover:scale-105"
+          >
             Get Started
           </button>
-          <button className="glass px-8 py-3 text-foreground font-mono font-bold text-sm tracking-wider uppercase rounded-lg cursor-pointer transition-all">
+          <a 
+            href="https://github.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="glass px-8 py-3 text-foreground font-mono font-bold text-sm tracking-wider uppercase rounded-lg cursor-pointer transition-all hover:scale-105"
+          >
             Source
-          </button>
+          </a>
         </div>
 
         {/* Pixel heart divider */}
@@ -188,11 +294,17 @@ export default function Home() {
                   Data Source
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <button className="glass-pink-solid px-4 py-2 text-pink-dark font-mono text-xs rounded-full cursor-pointer flex items-center gap-2 transition-all">
-                    <PixelHeart size={12} color="#b52a45" />
+                  <button 
+                    onClick={() => setSelectedSource("demo")}
+                    className={`${selectedSource === "demo" ? "glass-pink-solid text-pink-dark" : "glass text-foreground"} px-4 py-2 font-mono text-xs rounded-full cursor-pointer flex items-center gap-2 transition-all hover:scale-105`}
+                  >
+                    <PixelHeart size={12} color={selectedSource === "demo" ? "#b52a45" : "#d63555"} />
                     Demo Data
                   </button>
-                  <button className="glass px-4 py-2 text-foreground font-mono text-xs rounded-full cursor-pointer flex items-center gap-2 transition-all">
+                  <button 
+                    onClick={() => setSelectedSource("upload")}
+                    className={`${selectedSource === "upload" ? "glass-pink-solid text-pink-dark" : "glass text-foreground"} px-4 py-2 font-mono text-xs rounded-full cursor-pointer flex items-center gap-2 transition-all hover:scale-105`}
+                  >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     Upload XML
                   </button>
@@ -212,18 +324,22 @@ export default function Home() {
               </div>
 
               {/* File upload */}
-              <div className="mb-6">
-                <p className="font-mono text-xs tracking-[0.2em] uppercase text-foreground/40 mb-3">
-                  Apple Health Export
-                </p>
-                <div className="glass rounded-lg overflow-hidden">
-                  <label className="px-4 py-3 glass-pink font-mono text-xs text-foreground/70 border-r-0 cursor-pointer transition-all inline-block">
-                    Choose File
-                    <input type="file" accept=".xml" className="hidden" />
-                  </label>
-                  <span className="px-4 font-mono text-xs text-foreground/30">No file chosen</span>
+              {selectedSource === "upload" && (
+                <div className="mb-6">
+                  <p className="font-mono text-xs tracking-[0.2em] uppercase text-foreground/40 mb-3">
+                    Apple Health Export
+                  </p>
+                  <div className="glass rounded-lg overflow-hidden">
+                    <label className="px-4 py-3 glass-pink font-mono text-xs text-foreground/70 border-r-0 cursor-pointer transition-all inline-block hover:opacity-80">
+                      Choose File
+                      <input type="file" accept=".xml" onChange={handleFileChange} className="hidden" />
+                    </label>
+                    <span className="px-4 font-mono text-xs text-foreground/30">
+                      {selectedFile ? selectedFile.name : "No file chosen"}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Workout date */}
               <div className="mb-6">
@@ -240,19 +356,58 @@ export default function Home() {
               {/* Wallet */}
               <div className="mb-8">
                 <p className="font-mono text-xs tracking-[0.2em] uppercase text-foreground/40 mb-3">
-                  XRP Account
+                  Wallet Connection
                 </p>
-                <div className="flex items-center gap-2 glass rounded-lg px-4 py-3">
-                  <span className="w-2 h-2 rounded-full bg-pink-primary" />
-                  <span className="font-mono text-xs text-foreground/70 truncate">
-                    rwS2wxYSdE387SZ8geN4oA1aNgy53Pgchd
-                  </span>
-                </div>
+                {!isConnected ? (
+                  <button 
+                    onClick={handleConnectWallet}
+                    disabled={isConnecting}
+                    className="w-full flex items-center justify-center gap-2 glass rounded-lg px-4 py-3 hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-gray-400" />
+                    <span className="font-mono text-xs text-foreground/70">
+                      {isConnecting ? "Connecting..." : isInstalled ? "Connect MetaMask" : "Install MetaMask"}
+                    </span>
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2 glass rounded-lg px-4 py-3">
+                    <span className="w-2 h-2 rounded-full bg-pink-primary animate-pulse" />
+                    <span className="font-mono text-xs text-foreground/70 truncate">
+                      {address?.slice(0, 6)}...{address?.slice(-4)}
+                    </span>
+                  </div>
+                )}
               </div>
 
+              {/* Error Display */}
+              {error && (
+                <div className="mb-6 glass-pink rounded-lg p-4">
+                  <p className="font-mono text-xs text-red-600">{error}</p>
+                </div>
+              )}
+
+              {/* Result Display */}
+              {result && (
+                <div className="mb-6 glass rounded-lg p-4">
+                  <p className="font-mono text-xs text-green-600 mb-2">✓ Proof generated successfully!</p>
+                  <a 
+                    href={`https://explorer.testnet.xrplevm.org/tx/${result.txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-xs text-pink-primary hover:underline"
+                  >
+                    View on Explorer →
+                  </a>
+                </div>
+              )}
+
               {/* Generate button */}
-              <button className="w-full py-4 glass-pink-solid text-pink-dark font-mono font-bold text-sm tracking-wider uppercase rounded-lg cursor-pointer transition-all">
-                Generate Proof
+              <button 
+                onClick={handleGenerateProof}
+                disabled={!isConnected || isLoading}
+                className="w-full py-4 glass-pink-solid text-pink-dark font-mono font-bold text-sm tracking-wider uppercase rounded-lg cursor-pointer transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                {isLoading ? "Generating..." : "Generate Proof"}
               </button>
             </div>
 
