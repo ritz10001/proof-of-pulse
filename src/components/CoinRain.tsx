@@ -12,13 +12,116 @@ const MAX_COINS = 60;
 const SPAWN_INTERVAL = 250;
 
 const COINS = [
-  { symbol: "XRP", color: "#2c2c2c", bg: "#ffffff" },
-  { symbol: "BTC", color: "#f7931a", bg: "#fff4e0" },
-  { symbol: "ETH", color: "#627eea", bg: "#eef0ff" },
-  { symbol: "SOL", color: "#9945ff", bg: "#f3eaff" },
-  { symbol: "ADA", color: "#0033ad", bg: "#e6edff" },
-  { symbol: "DOT", color: "#e6007a", bg: "#ffe6f2" },
+  { symbol: "XRP", color: "#1a1a1a", face: "#23292f", edge: "#111518", shine: "#4a5560" },
+  { symbol: "BTC", color: "#7a4a00", face: "#f7931a", edge: "#b36a00", shine: "#ffc04a" },
+  { symbol: "ETH", color: "#2b3a7a", face: "#627eea", edge: "#3a4fa8", shine: "#8ea0f5" },
+  { symbol: "SOL", color: "#4a1a8a", face: "#9945ff", edge: "#6b28cc", shine: "#bb7aff" },
+  { symbol: "ADA", color: "#001a60", face: "#0033ad", edge: "#002080", shine: "#3366dd" },
+  { symbol: "DOT", color: "#800040", face: "#e6007a", edge: "#a80058", shine: "#ff4da0" },
 ];
+
+// Draw bold coin logos — uses the full r for sizing, drawn directly in ellipse space
+function drawLogo(ctx: CanvasRenderingContext2D, symbol: string, r: number, ry: number, logoColor: string) {
+  ctx.save();
+  ctx.fillStyle = logoColor;
+  ctx.strokeStyle = logoColor;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  // Scale factor: draw in a circle then squish to match ellipse
+  const sy = ry / r;
+  const s = r * 0.6;
+  const lw = Math.max(s * 0.22, 1.5);
+
+  switch (symbol) {
+    case "BTC": {
+      // Bold ₿ — just use the character, biggest and boldest
+      ctx.font = `900 ${Math.round(r * 1.1)}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.scale(1, sy);
+      ctx.fillText("₿", 0, 1);
+      break;
+    }
+    case "ETH": {
+      // Ethereum diamond — big and filled
+      ctx.scale(1, sy);
+      const dh = s * 1.1;
+      const dw = s * 0.65;
+      ctx.beginPath();
+      ctx.moveTo(0, -dh);
+      ctx.lineTo(dw, 0);
+      ctx.lineTo(0, dh);
+      ctx.lineTo(-dw, 0);
+      ctx.closePath();
+      ctx.fill();
+      // Split line
+      ctx.beginPath();
+      ctx.moveTo(-dw * 0.9, -dh * 0.05);
+      ctx.lineTo(dw * 0.9, -dh * 0.05);
+      ctx.lineWidth = lw * 0.5;
+      ctx.globalAlpha = 0.3;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      break;
+    }
+    case "XRP": {
+      // Bold X
+      ctx.scale(1, sy);
+      ctx.lineWidth = lw * 1.2;
+      const xr = s * 0.7;
+      ctx.beginPath();
+      ctx.moveTo(-xr, -xr);
+      ctx.lineTo(xr, xr);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(xr, -xr);
+      ctx.lineTo(-xr, xr);
+      ctx.stroke();
+      break;
+    }
+    case "SOL": {
+      // Three bold horizontal bars
+      ctx.scale(1, sy);
+      ctx.lineWidth = lw;
+      const bw = s * 0.75;
+      const gap = s * 0.55;
+      for (let i = -1; i <= 1; i++) {
+        ctx.beginPath();
+        ctx.moveTo(-bw, i * gap);
+        ctx.lineTo(bw, i * gap);
+        ctx.stroke();
+      }
+      break;
+    }
+    case "ADA": {
+      // Starburst — 6 dots in a ring + center
+      ctx.scale(1, sy);
+      const dotR = s * 0.18;
+      const ringR = s * 0.55;
+      ctx.beginPath();
+      ctx.arc(0, 0, dotR * 1.2, 0, Math.PI * 2);
+      ctx.fill();
+      for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
+        ctx.beginPath();
+        ctx.arc(Math.cos(a) * ringR, Math.sin(a) * ringR, dotR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      break;
+    }
+    case "DOT": {
+      // Big center dot
+      ctx.scale(1, sy);
+      ctx.beginPath();
+      ctx.arc(0, 0, s * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+  }
+
+  ctx.restore();
+}
 
 interface Coin {
   x: number;
@@ -32,6 +135,8 @@ interface Coin {
   grounded: boolean;
   bounced: boolean;
   scale: number;
+  tiltPhase: number;
+  tiltBase: number;
 }
 
 export default function CoinRain() {
@@ -92,56 +197,110 @@ export default function CoinRain() {
       vx: (Math.random() - 0.5) * 0.2,
       vy: 0.15 + Math.random() * 0.3,
       rotation: Math.random() * Math.PI * 2,
-      rotationSpeed: (Math.random() - 0.5) * 0.02,
+      rotationSpeed: (Math.random() - 0.5) * 0.04,
       coinType: Math.floor(Math.random() * COINS.length),
       opacity: 0.7 + Math.random() * 0.3,
       grounded: false,
       bounced: false,
       scale: 0.8 + Math.random() * 0.4,
+      tiltPhase: Math.random() * Math.PI * 2,
+      tiltBase: 0.15 + Math.random() * 0.55,
     });
 
     const drawCoin = (coin: Coin) => {
-      const { symbol, color, bg } = COINS[coin.coinType];
+      const { symbol, color, face, edge, shine } = COINS[coin.coinType];
       const r = COIN_SIZE * coin.scale * 0.5;
+      const edgeH = r * 0.45;
 
       ctx.save();
       ctx.translate(coin.x, coin.y);
-      ctx.rotate(coin.rotation);
       ctx.globalAlpha = coin.opacity;
 
-      // Coin body - slight 3D squish based on rotation
-      const squish = 0.6 + 0.4 * Math.abs(Math.cos(coin.rotation * 0.5));
+      // Per-coin tilt with wider variety
+      const tilt = coin.tiltBase + 0.15 * Math.sin(coin.rotation + coin.tiltPhase);
+      const ry = r * Math.max(tilt, 0.1);
+      const bandH = edgeH * Math.max(1.2 - tilt, 0.15);
 
-      ctx.scale(squish, 1);
-
-      // Shadow
+      // Drop shadow
       ctx.beginPath();
-      ctx.arc(1, 1, r, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(0,0,0,0.06)";
+      ctx.ellipse(2, bandH + 3, r + 1, ry + 1, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0,0,0,0.08)";
       ctx.fill();
 
-      // Main circle
+      // === EDGE BAND ===
       ctx.beginPath();
-      ctx.arc(0, 0, r, 0, Math.PI * 2);
-      ctx.fillStyle = bg;
+      ctx.rect(-r, 0, r * 2, bandH);
+      ctx.fillStyle = edge;
+      ctx.fill();
+
+      // Bottom cap
+      ctx.beginPath();
+      ctx.ellipse(0, bandH, r, ry, 0, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      // Side walls on top of bottom cap
+      ctx.beginPath();
+      ctx.rect(-r, 0, r * 2, bandH);
+      ctx.fillStyle = edge;
+      ctx.fill();
+
+      // Side outlines
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-r, 0);
+      ctx.lineTo(-r, bandH);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(r, 0);
+      ctx.lineTo(r, bandH);
+      ctx.stroke();
+
+      // Bottom rim outline
+      ctx.beginPath();
+      ctx.ellipse(0, bandH, r, ry, 0, 0, Math.PI);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Highlight stripe on edge
+      ctx.beginPath();
+      ctx.moveTo(-r + 2, bandH * 0.5);
+      ctx.lineTo(r - 2, bandH * 0.5);
+      ctx.strokeStyle = shine + "30";
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+
+      // === TOP FACE ===
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r, ry, 0, 0, Math.PI * 2);
+      const faceGrad = ctx.createRadialGradient(-r * 0.25, -ry * 0.25, 0, 0, 0, r);
+      faceGrad.addColorStop(0, shine);
+      faceGrad.addColorStop(0.4, face);
+      faceGrad.addColorStop(1, edge);
+      ctx.fillStyle = faceGrad;
       ctx.fill();
       ctx.strokeStyle = color;
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // Inner ring
+      // Inner rim ring
       ctx.beginPath();
-      ctx.arc(0, 0, r * 0.75, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, r * 0.78, ry * 0.78, 0, 0, Math.PI * 2);
       ctx.strokeStyle = color + "40";
-      ctx.lineWidth = 0.5;
+      ctx.lineWidth = 0.7;
       ctx.stroke();
 
-      // Symbol text
-      ctx.fillStyle = color;
-      ctx.font = `bold ${Math.round(r * 0.7)}px monospace`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(symbol, 0, 0.5);
+      // Draw logo — white for max contrast on all coin faces
+      drawLogo(ctx, symbol, r * 0.7, ry * 0.7, "rgba(255,255,255,0.9)");
+
+      // Specular highlight arc
+      ctx.beginPath();
+      ctx.ellipse(-r * 0.15, -ry * 0.1, r * 0.4, ry * 0.3, -0.3, -Math.PI * 0.8, -Math.PI * 0.15);
+      ctx.strokeStyle = "rgba(255,255,255,0.35)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
 
       ctx.restore();
     };
@@ -183,16 +342,11 @@ export default function CoinRain() {
 
           if (dist < CURSOR_RADIUS && !coin.bounced) {
             coin.bounced = true;
-            // Normalize direction from cursor to coin
             const nx = dx / dist;
             const ny = dy / dist;
-
-            // Deflect based on where the coin hits relative to cursor
             const tangentStrength = (Math.random() - 0.3) * 1.5;
             coin.vx = nx * BOUNCE_STRENGTH + ny * tangentStrength;
             coin.vy = ny * BOUNCE_STRENGTH - Math.abs(nx) * 1.2 - 1;
-
-            // Add some spin
             coin.rotationSpeed += (Math.random() - 0.5) * 0.1;
           }
 
@@ -209,11 +363,10 @@ export default function CoinRain() {
             coin.vy = 0;
           }
 
-          // Side boundaries - soft wrap
+          // Side boundaries
           if (coin.x < -COIN_SIZE * 2) coin.x = w + COIN_SIZE;
           if (coin.x > w + COIN_SIZE * 2) coin.x = -COIN_SIZE;
         } else {
-          // Fade out on ground
           coin.opacity -= GROUND_FADE_SPEED;
         }
 

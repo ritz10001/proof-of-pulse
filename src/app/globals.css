@@ -59,6 +59,15 @@ body {
   animation: pixel-pulse 1.5s ease-in-out infinite;
 }
 
+/* Gentle hover float for Apple Watch modal */
+@keyframes hover-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-hover-float {
+  animation: hover-float 3s ease-in-out infinite;
+}
+
 /* Float animation for background hearts */
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.15; }
@@ -86,29 +95,6 @@ body {
   isolation: isolate;
 }
 
-/* Cursor "sun" — edge/border specular glow only (liquid glass effect) */
-.glass::after,
-.glass-pink::after,
-.glass-pink-solid::after {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  border: 2px solid transparent;
-  background:
-    linear-gradient(rgba(255,245,245,0), rgba(255,245,245,0)) padding-box,
-    radial-gradient(
-      circle 100px at var(--shine-x, -200px) var(--shine-y, -200px),
-      rgba(255, 255, 255, 1) 0%,
-      rgba(255, 255, 255, 0.7) 30%,
-      rgba(255, 255, 255, 0.2) 55%,
-      transparent 70%
-    ) border-box;
-  pointer-events: none;
-  z-index: 2;
-  opacity: var(--shine-opacity, 0);
-  transition: opacity 0.15s ease;
-}
 
 .glass {
   background: rgba(255, 255, 255, 0.03);
@@ -144,19 +130,6 @@ body {
     0 2px 6px rgba(214, 53, 85, 0.05),
     inset 0 1px 1px rgba(255, 255, 255, 0.7),
     inset 0 -1px 0 rgba(214, 53, 85, 0.05);
-}
-
-/* Pink-solid edge glow is pink-tinted */
-.glass-pink-solid::after {
-  background:
-    linear-gradient(rgba(255,245,245,0), rgba(255,245,245,0)) padding-box,
-    radial-gradient(
-      circle 100px at var(--shine-x, -200px) var(--shine-y, -200px),
-      rgba(255, 220, 230, 1) 0%,
-      rgba(255, 200, 215, 0.7) 30%,
-      rgba(214, 53, 85, 0.2) 55%,
-      transparent 70%
-    ) border-box;
 }
 
 .glass-pink-solid:hover {

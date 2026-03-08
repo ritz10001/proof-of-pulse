@@ -6,7 +6,7 @@ import PixelHeart from "@/components/PixelHeart";
 import TypingText from "@/components/TypingText";
 import InteractiveGrid from "@/components/InteractiveGrid";
 import CoinRain from "@/components/CoinRain";
-import GlassShine from "@/components/GlassShine";
+import AppleWatchModal from "@/components/AppleWatchModal";
 import { useWallet } from "@/blockchain/providers/WalletProvider";
 import { useAttestation } from "@/blockchain/hooks/useAttestation";
 
@@ -57,8 +57,11 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [selectedSource, setSelectedSource] = useState<"demo" | "upload">("demo");
+  const [selectedSource, setSelectedSource] = useState<"demo" | "upload" | "watch">("demo");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showWatchModal, setShowWatchModal] = useState(false);
+  const [watchDataReady, setWatchDataReady] = useState(false);
+  const [watchData, setWatchData] = useState<{ bpm: number; min: number; max: number; date: string; source: string; totalSamples: number } | null>(null);
 
   const handleConnectWallet = async () => {
     if (!isInstalled) {
@@ -152,7 +155,6 @@ export default function Home() {
       <GlassBlobs />
       <InteractiveGrid />
       <CoinRain />
-      <GlassShine />
       <Navbar />
 
       {/* Hero */}
@@ -308,10 +310,18 @@ export default function Home() {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     Upload XML
                   </button>
-                  <button className="glass px-4 py-2 text-foreground/40 font-mono text-xs rounded-full cursor-not-allowed flex items-center gap-2 opacity-60">
+                  <button
+                    onClick={() => {
+                      setSelectedSource("watch");
+                      setShowWatchModal(true);
+                    }}
+                    className={`${selectedSource === "watch" && watchDataReady ? "glass-pink-solid text-pink-dark" : "glass text-foreground"} px-4 py-2 font-mono text-xs rounded-full cursor-pointer flex items-center gap-2 transition-all hover:scale-105`}
+                  >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                     Apple Watch
-                    <span className="text-[9px] glass-pink text-pink-primary px-1.5 py-0.5 rounded font-bold">SOON</span>
+                    {watchDataReady && selectedSource === "watch" && (
+                      <span className="text-[9px] text-green-600 font-bold">READY</span>
+                    )}
                   </button>
                 </div>
               </div>
@@ -404,38 +414,132 @@ export default function Home() {
               {/* Generate button */}
               <button 
                 onClick={handleGenerateProof}
-                disabled={!isConnected || isLoading}
+                disabled={!isConnected || isLoading || (selectedSource === "watch" && !watchDataReady)}
                 className="w-full py-4 glass-pink-solid text-pink-dark font-mono font-bold text-sm tracking-wider uppercase rounded-lg cursor-pointer transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {isLoading ? "Generating..." : "Generate Proof"}
               </button>
             </div>
 
-            {/* Right: What Happens */}
+            {/* Right: What Happens / Terminal */}
             <div>
-              <p className="font-mono text-xs tracking-[0.3em] uppercase text-pink-primary/60 mb-8">
-                What Happens
-              </p>
-              <div className="space-y-8">
-                {[
-                  { step: "01", title: "Parse", desc: "Heart rate samples are extracted from your Apple Health export — or streamed directly from the Apple Watch app." },
-                  { step: "02", title: "Detect", desc: "The engine checks for fraud: flat data, erratic swings, missing warmup patterns." },
-                  { step: "03", title: "Score", desc: "A confidence score (0-100) is computed from duration, variability, sampling density, and HR range." },
-                  { step: "04", title: "Prove", desc: "The attestation is signed and submitted to the XRP Ledger. Raw data stays encrypted locally." },
-                ].map((item) => (
-                  <div key={item.step} className="flex gap-4">
-                    <span className="font-mono text-xs text-pink-primary/40 pt-1 shrink-0">{item.step}</span>
-                    <div>
-                      <h4 className="font-mono text-lg font-black text-foreground mb-1">{item.title}</h4>
-                      <p className="text-sm text-foreground/50 leading-relaxed">{item.desc}</p>
+              {watchData ? (
+                <>
+                  <p className="font-mono text-xs tracking-[0.3em] uppercase text-pink-primary/60 mb-4">
+                    Biometric Payload
+                  </p>
+                  <div className="glass-pink rounded-xl overflow-hidden border border-pink-primary/15">
+                    {/* Terminal title bar */}
+                    <div className="flex items-center gap-2 px-4 py-2.5 border-b border-pink-primary/10 bg-pink-primary/[0.04]">
+                      <span className="w-2.5 h-2.5 rounded-full bg-pink-primary/50" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-pink-primary/25" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-pink-primary/12" />
+                      <span className="ml-3 font-mono text-[10px] text-pink-primary/40 tracking-wider">proof-of-pulse ~ /heartbeat</span>
+                    </div>
+                    {/* Terminal body */}
+                    <div className="p-5 font-mono text-xs leading-relaxed overflow-x-auto">
+                      <p className="text-pink-primary/50 mb-3">$ curl GET /api/heartbeat</p>
+                      <p className="text-pink-primary/80 font-bold mb-4">200 OK — payload received</p>
+
+                      <div className="text-foreground/30 mb-1">{"{"}</div>
+
+                      <div className="pl-4 space-y-1.5">
+                        <p>
+                          <span className="text-pink-primary/60">&quot;bpm&quot;</span>
+                          <span className="text-foreground/20"> : </span>
+                          <span className="text-pink-primary font-bold text-sm">{watchData.bpm}</span>
+                          <span className="text-foreground/15">,</span>
+                        </p>
+                        <p>
+                          <span className="text-pink-primary/60">&quot;min&quot;</span>
+                          <span className="text-foreground/20"> : </span>
+                          <span className="text-foreground/70">{watchData.min}</span>
+                          <span className="text-foreground/15">,</span>
+                        </p>
+                        <p>
+                          <span className="text-pink-primary/60">&quot;max&quot;</span>
+                          <span className="text-foreground/20"> : </span>
+                          <span className="text-foreground/70">{watchData.max}</span>
+                          <span className="text-foreground/15">,</span>
+                        </p>
+                        <p>
+                          <span className="text-pink-primary/60">&quot;date&quot;</span>
+                          <span className="text-foreground/20"> : </span>
+                          <span className="text-foreground/60">&quot;{watchData.date}&quot;</span>
+                          <span className="text-foreground/15">,</span>
+                        </p>
+                        <p>
+                          <span className="text-pink-primary/60">&quot;source&quot;</span>
+                          <span className="text-foreground/20"> : </span>
+                          <span className="text-foreground/60">&quot;{watchData.source}&quot;</span>
+                          <span className="text-foreground/15">,</span>
+                        </p>
+                        <p>
+                          <span className="text-pink-primary/60">&quot;totalSamples&quot;</span>
+                          <span className="text-foreground/20"> : </span>
+                          <span className="text-foreground/70">{watchData.totalSamples}</span>
+                        </p>
+                      </div>
+
+                      <div className="text-foreground/30 mt-1 mb-4">{"}"}</div>
+
+                      <div className="border-t border-pink-primary/10 pt-4 mt-2 space-y-1.5">
+                        <p className="text-pink-primary/50">$ analyze --verify</p>
+                        <p className="text-pink-primary/70">
+                          <span className="text-pink-primary/50">&#10003;</span> heart_rate validated
+                        </p>
+                        <p className="text-pink-primary/70">
+                          <span className="text-pink-primary/50">&#10003;</span> {watchData.totalSamples} samples in range [{watchData.min}–{watchData.max}]
+                        </p>
+                        <p className="text-pink-primary/70">
+                          <span className="text-pink-primary/50">&#10003;</span> avg BPM: {watchData.bpm} — source: {watchData.source}
+                        </p>
+                        <p className="text-pink-primary/40 mt-3">
+                          <span className="animate-pulse">_</span>
+                        </p>
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                </>
+              ) : (
+                <>
+                  <p className="font-mono text-xs tracking-[0.3em] uppercase text-pink-primary/60 mb-8">
+                    What Happens
+                  </p>
+                  <div className="space-y-8">
+                    {[
+                      { step: "01", title: "Parse", desc: "Heart rate samples are extracted from your Apple Health export — or streamed directly from the Apple Watch app." },
+                      { step: "02", title: "Detect", desc: "The engine checks for fraud: flat data, erratic swings, missing warmup patterns." },
+                      { step: "03", title: "Score", desc: "A confidence score (0-100) is computed from duration, variability, sampling density, and HR range." },
+                      { step: "04", title: "Prove", desc: "The attestation is signed and submitted to the XRP Ledger. Raw data stays encrypted locally." },
+                    ].map((item) => (
+                      <div key={item.step} className="flex gap-4">
+                        <span className="font-mono text-xs text-pink-primary/40 pt-1 shrink-0">{item.step}</span>
+                        <div>
+                          <h4 className="font-mono text-lg font-black text-foreground mb-1">{item.title}</h4>
+                          <p className="text-sm text-foreground/50 leading-relaxed">{item.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
       </section>
+
+      {/* Apple Watch Modal */}
+      <AppleWatchModal
+        isOpen={showWatchModal}
+        onClose={(data) => {
+          setShowWatchModal(false);
+          if (data) {
+            setWatchDataReady(true);
+            setWatchData(data);
+          }
+        }}
+      />
     </div>
   );
 }
