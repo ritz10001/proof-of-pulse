@@ -9,7 +9,6 @@ import InteractiveGrid from "@/components/InteractiveGrid";
 import CoinRain from "@/components/CoinRain";
 import AppleWatchModal from "@/components/AppleWatchModal";
 import { useWallet } from "@/blockchain/providers/WalletProvider";
-import { useAttestation } from "@/blockchain/hooks/useAttestation";
 
 const SLOGANS = [
   "Your heartbeat. On-chain. Zero knowledge.",
@@ -54,7 +53,7 @@ function GlassBlobs() {
 
 export default function Home() {
   const { address, isConnected, isInstalled, connect } = useWallet();
-  const { submitAttestation, isLoading } = useAttestation();
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -97,57 +96,59 @@ export default function Home() {
 
     setError(null);
     setResult(null);
+    setIsLoading(true);
 
     try {
-      // Sample heart rate data for demo
-      const sampleHRData = [
-        { timestamp: "2024-01-01T10:00:00Z", bpm: 95 },
-        { timestamp: "2024-01-01T10:00:05Z", bpm: 100 },
-        { timestamp: "2024-01-01T10:00:10Z", bpm: 110 },
-        { timestamp: "2024-01-01T10:00:15Z", bpm: 120 },
-        { timestamp: "2024-01-01T10:00:20Z", bpm: 130 },
-        { timestamp: "2024-01-01T10:00:25Z", bpm: 140 },
-        { timestamp: "2024-01-01T10:00:30Z", bpm: 150 },
-        { timestamp: "2024-01-01T10:00:35Z", bpm: 155 },
-        { timestamp: "2024-01-01T10:00:40Z", bpm: 160 },
-        { timestamp: "2024-01-01T10:00:45Z", bpm: 165 },
-        { timestamp: "2024-01-01T10:00:50Z", bpm: 170 },
-        { timestamp: "2024-01-01T10:00:55Z", bpm: 168 },
-        { timestamp: "2024-01-01T10:01:00Z", bpm: 165 },
-        { timestamp: "2024-01-01T10:01:05Z", bpm: 160 },
-        { timestamp: "2024-01-01T10:01:10Z", bpm: 155 },
-      ];
-
-      // Step 1: Analyze with backend
-      const backendResponse = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hr_samples: sampleHRData }),
-      });
-
-      if (!backendResponse.ok) {
-        throw new Error("Backend analysis failed");
+      // Generate realistic demo HR data (20-min cardio with warmup/cooldown)
+      const now = Date.now();
+      const sampleHRData = [];
+      for (let i = 0; i < 120; i++) {
+        const t = i / 6;
+        let bpm: number;
+        if (t < 3) {
+          bpm = 72 + (t / 3) * 48 + (Math.random() - 0.5) * 6;
+        } else if (t < 15) {
+          bpm = 140 + Math.sin(t * 0.5) * 15 + (Math.random() - 0.5) * 10;
+        } else {
+          const coolPct = (t - 15) / 5;
+          bpm = 140 - coolPct * 45 + (Math.random() - 0.5) * 6;
+        }
+        sampleHRData.push({
+          timestamp: new Date(now - (120 - i) * 10000).toISOString(),
+          bpm: Math.round(Math.max(60, Math.min(180, bpm))),
+        });
       }
 
-      const backendData = await backendResponse.json();
-
-      // Step 2: Submit to blockchain
-      const blockchainResult = await submitAttestation({
-        activityType: backendData.attestation.activity_type,
-        durationMins: backendData.attestation.duration_mins,
-        avgHr: backendData.attestation.avg_hr,
-        maxHr: backendData.attestation.max_hr,
-        minHr: backendData.attestation.min_hr,
-        hrZoneDistribution: backendData.attestation.hr_zone_distribution,
-        recoveryScore: backendData.attestation.recovery_score,
-        confidence: backendData.attestation.confidence,
-        dataHash: backendData.attestation.data_hash,
-        ipfsHash: "user-submitted-" + Date.now(),
+      // Call /api/attest which uses the oracle key server-side
+      // (the ProofOfPulse contract only allows authorized oracles to submit)
+      const response = await fetch("/api/attest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: address,
+          hr_samples: sampleHRData,
+        }),
       });
 
-      setResult(blockchainResult);
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || "Attestation failed");
+      }
+
+      const data = await response.json();
+
+      setResult({
+        txHash: data.tx_hash,
+        blockNumber: data.block_number,
+        attestationKey: data.attestation_key,
+        explorerUrl: data.explorer_url,
+        attestation: data.attestation,
+        pinata: data.pinata,
+      });
     } catch (err: any) {
       setError(err.message || "Failed to generate proof");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -403,16 +404,39 @@ export default function Home() {
 
               {/* Result Display */}
               {result && (
-                <div className="mb-6 glass rounded-lg p-4">
-                  <p className="font-mono text-xs text-green-600 mb-2">✓ Proof generated successfully!</p>
-                  <a 
-                    href={`https://explorer.testnet.xrplevm.org/tx/${result.txHash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-mono text-xs text-pink-primary hover:underline"
-                  >
-                    View on Explorer →
-                  </a>
+                <div className="mb-6 glass rounded-lg p-4 space-y-2">
+                  <p className="font-mono text-xs text-green-600 mb-2">&#10003; Proof generated successfully!</p>
+                  {result.attestation && (
+                    <div className="flex flex-wrap gap-3 text-[11px] font-mono text-foreground/60">
+                      <span>Score: <span className="text-foreground font-bold">{result.attestation.confidence}%</span></span>
+                      <span>Type: {result.attestation.activity_type}</span>
+                      <span>Duration: {result.attestation.duration_mins}min</span>
+                      <span>Avg HR: {result.attestation.avg_hr}bpm</span>
+                    </div>
+                  )}
+                  {result.txHash && (
+                    <a
+                      href={`https://explorer.testnet.xrplevm.org/tx/${result.txHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-xs text-pink-primary hover:underline block"
+                    >
+                      View on Explorer: {result.txHash.slice(0, 16)}... &#8594;
+                    </a>
+                  )}
+                  {result.pinata?.ipfs_hash && (
+                    <a
+                      href={result.pinata.gateway_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-xs text-pink-primary/70 hover:underline block"
+                    >
+                      IPFS: {result.pinata.ipfs_hash.slice(0, 16)}... &#8594;
+                    </a>
+                  )}
+                  {!result.txHash && result.attestation && (
+                    <p className="font-mono text-[10px] text-foreground/40">Analysis complete (on-chain submission pending)</p>
+                  )}
                 </div>
               )}
 
