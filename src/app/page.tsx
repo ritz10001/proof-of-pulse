@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import PixelHeart from "@/components/PixelHeart";
 import TypingText from "@/components/TypingText";
@@ -199,14 +200,12 @@ export default function Home() {
           >
             Get Started
           </button>
-          <a 
-            href="https://github.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
+          <Link
+            href="/dao"
             className="glass px-8 py-3 text-foreground font-mono font-bold text-sm tracking-wider uppercase rounded-lg cursor-pointer transition-all hover:scale-105"
           >
-            Source
-          </a>
+            DAO Challenges
+          </Link>
         </div>
 
         {/* Pixel heart divider */}

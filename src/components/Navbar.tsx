@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import PixelHeart from "./PixelHeart";
 import { useWallet } from "@/blockchain/providers/WalletProvider";
 
@@ -57,6 +58,9 @@ export default function Navbar() {
           <a href="#stats" className="glass text-sm font-mono text-foreground/70 hover:text-foreground px-4 py-2 rounded-lg transition-all">
             Stats
           </a>
+          <Link href="/dao" className="glass-pink text-sm font-mono text-pink-primary hover:text-pink-dark px-4 py-2 rounded-lg transition-all">
+            DAO
+          </Link>
           <button
             onClick={handleConnect}
             disabled={isConnecting}
