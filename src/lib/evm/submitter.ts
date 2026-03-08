@@ -1,9 +1,9 @@
 import { ethers } from "ethers";
 import type { AttestationResult } from "../types";
 
-const RPC_URL = process.env.XRP_EVM_RPC_URL || "https://rpc.testnet.xrplevm.org";
+const RPC_URL = process.env.XRP_EVM_RPC_URL || process.env.NEXT_PUBLIC_XRP_EVM_RPC_URL || "https://rpc.testnet.xrplevm.org";
 const ORACLE_PRIVATE_KEY = process.env.ORACLE_PRIVATE_KEY;
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 
 // ProofOfPulse ABI (only the functions we need)
 const CONTRACT_ABI = [

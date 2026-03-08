@@ -17,6 +17,7 @@ import pendingRequests from "./routes/pendingRequests.js";
 import contractViews from "./routes/contract-views.js";
 import vault from "./routes/vault.js";
 import telegram from "./routes/telegram.js";
+import { startTelegramBot } from "./telegram/bot.js";
 
 const app = new Hono();
 
@@ -44,6 +45,9 @@ const port = Number(process.env.PORT || "3001");
 console.log(`Proof of Pulse Shade Agent running on http://localhost:${port}`);
 
 serve({ fetch: app.fetch, port });
+
+// ── Start Telegram bot (long-polling mode) ──
+startTelegramBot();
 
 // ── Background polling disabled (XRP Ledger doesn't need polling) ──
 // XRP Ledger transactions are immediate, no async fulfillment needed

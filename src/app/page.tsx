@@ -202,9 +202,15 @@ export default function Home() {
           </button>
           <Link
             href="/dao"
+            className="glass-pink px-8 py-3 text-pink-primary font-mono font-bold text-sm tracking-wider uppercase rounded-lg cursor-pointer transition-all hover:scale-105"
+          >
+            Insurance DAO
+          </Link>
+          <Link
+            href="/dao/challenges"
             className="glass px-8 py-3 text-foreground font-mono font-bold text-sm tracking-wider uppercase rounded-lg cursor-pointer transition-all hover:scale-105"
           >
-            DAO Challenges
+            Challenges
           </Link>
         </div>
 

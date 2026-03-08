@@ -23,11 +23,13 @@
     "fast-xml-parser": "^5.3.6",
     "hono": "^4.8.4",
     "near-api-js": "^7.1.1",
+    "node-telegram-bot-api": "^0.67.0",
     "nova-sdk-js": "^1.0.3",
     "xrpl": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.19.37",
+    "@types/node-telegram-bot-api": "^0.64.14",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
   }

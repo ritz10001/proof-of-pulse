@@ -59,7 +59,10 @@ export default function Navbar() {
             Stats
           </a>
           <Link href="/dao" className="glass-pink text-sm font-mono text-pink-primary hover:text-pink-dark px-4 py-2 rounded-lg transition-all">
-            DAO
+            Insurance DAO
+          </Link>
+          <Link href="/dao/challenges" className="glass text-sm font-mono text-foreground/70 hover:text-foreground px-4 py-2 rounded-lg transition-all">
+            Challenges
           </Link>
           <button
             onClick={handleConnect}
