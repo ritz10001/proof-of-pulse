@@ -2,10 +2,28 @@
 
 import { useState, useEffect, useRef } from "react";
 import PixelHeart from "./PixelHeart";
+import { useWallet } from "@/blockchain/providers/WalletProvider";
 
 export default function Navbar() {
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
+  const { address, isConnected, isInstalled, connect } = useWallet();
+  const [isConnecting, setIsConnecting] = useState(false);
+
+  const handleConnect = async () => {
+    if (!isInstalled) {
+      window.open("https://metamask.io", "_blank");
+      return;
+    }
+    setIsConnecting(true);
+    try {
+      await connect();
+    } catch (err) {
+      console.error("Failed to connect:", err);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => {
@@ -39,8 +57,12 @@ export default function Navbar() {
           <a href="#stats" className="glass text-sm font-mono text-foreground/70 hover:text-foreground px-4 py-2 rounded-lg transition-all">
             Stats
           </a>
-          <button className="glass-pink-solid text-pink-dark text-sm font-mono px-5 py-2 rounded-lg cursor-pointer transition-all">
-            Connect Wallet
+          <button
+            onClick={handleConnect}
+            disabled={isConnecting}
+            className="glass-pink-solid text-pink-dark text-sm font-mono px-5 py-2 rounded-lg cursor-pointer transition-all disabled:opacity-50"
+          >
+            {isConnecting ? "Connecting..." : isConnected ? `${address?.slice(0, 6)}...${address?.slice(-4)}` : "Connect Wallet"}
           </button>
         </div>
       </div>
