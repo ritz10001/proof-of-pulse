@@ -1,0 +1,414 @@
+[00:00:02.319] Server  LOG     ✓ Ready in 1694ms
+[00:00:03.279] Server  ERROR   ⨯ ./src/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/CoinRain'
+   5 | import TypingText from "@/components/TypingText";
+   6 | import InteractiveGrid from "@/components/InteractiveGrid";
+>  7 | import CoinRain from "@/components/CoinRain";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import GlassShine from "@/components/GlassShine";
+   9 |
+  10 | const SLOGANS = [
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+
+./src/app/page.tsx:8:1
+Module not found: Can't resolve '@/components/GlassShine'
+   6 | import InteractiveGrid from "@/components/InteractiveGrid";
+   7 | import CoinRain from "@/components/CoinRain";
+>  8 | import GlassShine from "@/components/GlassShine";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 |
+  10 | const SLOGANS = [
+  11 |   "Your heartbeat. On-chain. Zero knowledge.",
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+
+./src/app/page.tsx:6:1
+Module not found: Can't resolve '@/components/InteractiveGrid'
+  4 | import PixelHeart from "@/components/PixelHeart";
+  5 | import TypingText from "@/components/TypingText";
+> 6 | import InteractiveGrid from "@/components/InteractiveGrid";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import CoinRain from "@/components/CoinRain";
+  8 | import GlassShine from "@/components/GlassShine";
+  9 |
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+
+./src/app/page.tsx:3:1
+Module not found: Can't resolve '@/components/Navbar'
+  1 | "use client";
+  2 |
+> 3 | import Navbar from "@/components/Navbar";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import PixelHeart from "@/components/PixelHeart";
+  5 | import TypingText from "@/components/TypingText";
+  6 | import InteractiveGrid from "@/components/InteractiveGrid";
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+
+./src/app/page.tsx:4:1
+Module not found: Can't resolve '@/components/PixelHeart'
+  2 |
+  3 | import Navbar from "@/components/Navbar";
+> 4 | import PixelHeart from "@/components/PixelHeart";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import TypingText from "@/components/TypingText";
+  6 | import InteractiveGrid from "@/components/InteractiveGrid";
+  7 | import CoinRain from "@/components/CoinRain";
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+
+./src/app/page.tsx:5:1
+Module not found: Can't resolve '@/components/TypingText'
+  3 | import Navbar from "@/components/Navbar";
+  4 | import PixelHeart from "@/components/PixelHeart";
+> 5 | import TypingText from "@/components/TypingText";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import InteractiveGrid from "@/components/InteractiveGrid";
+  7 | import CoinRain from "@/components/CoinRain";
+  8 | import GlassShine from "@/components/GlassShine";
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:00:04.925] Browser ERROR   uncaughtError: Error: ./src/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/CoinRain'
+   5 | import TypingText from "@/components/TypingText";
+   6 | import InteractiveGrid from "@/components/InteractiveGrid";
+>  7 | import CoinRain from "@/components/CoinRain";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import GlassShine from "@/components/GlassShine";
+   9 |
+  10 | const SLOGANS = [
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:00:06.143] Browser ERROR   ./src/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/CoinRain'
+   5 | import TypingText from "@/components/TypingText";
+   6 | import InteractiveGrid from "@/components/InteractiveGrid";
+>  7 | import CoinRain from "@/components/CoinRain";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import GlassShine from "@/components/GlassShine";
+   9 |
+  10 | const SLOGANS = [
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[00:00:06.143] Browser ERROR   ./src/app/page.tsx:8:1
+Module not found: Can't resolve '@/components/GlassShine'
+   6 | import InteractiveGrid from "@/components/InteractiveGrid";
+   7 | import CoinRain from "@/components/CoinRain";
+>  8 | import GlassShine from "@/components/GlassShine";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 |
+  10 | const SLOGANS = [
+  11 |   "Your heartbeat. On-chain. Zero knowledge.",
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[00:00:06.143] Browser ERROR   ./src/app/page.tsx:6:1
+Module not found: Can't resolve '@/components/InteractiveGrid'
+  4 | import PixelHeart from "@/components/PixelHeart";
+  5 | import TypingText from "@/components/TypingText";
+> 6 | import InteractiveGrid from "@/components/InteractiveGrid";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import CoinRain from "@/components/CoinRain";
+  8 | import GlassShine from "@/components/GlassShine";
+  9 |
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[00:00:06.143] Browser ERROR   ./src/app/page.tsx:3:1
+Module not found: Can't resolve '@/components/Navbar'
+  1 | "use client";
+  2 |
+> 3 | import Navbar from "@/components/Navbar";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import PixelHeart from "@/components/PixelHeart";
+  5 | import TypingText from "@/components/TypingText";
+  6 | import InteractiveGrid from "@/components/InteractiveGrid";
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[00:00:06.143] Browser ERROR   ./src/app/page.tsx:4:1
+Module not found: Can't resolve '@/components/PixelHeart'
+  2 |
+  3 | import Navbar from "@/components/Navbar";
+> 4 | import PixelHeart from "@/components/PixelHeart";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import TypingText from "@/components/TypingText";
+  6 | import InteractiveGrid from "@/components/InteractiveGrid";
+  7 | import CoinRain from "@/components/CoinRain";
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[00:00:06.143] Browser ERROR   ./src/app/page.tsx:5:1
+Module not found: Can't resolve '@/components/TypingText'
+  3 | import Navbar from "@/components/Navbar";
+  4 | import PixelHeart from "@/components/PixelHeart";
+> 5 | import TypingText from "@/components/TypingText";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import InteractiveGrid from "@/components/InteractiveGrid";
+  7 | import CoinRain from "@/components/CoinRain";
+  8 | import GlassShine from "@/components/GlassShine";
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[00:00:06.143] Browser ERROR   ./src/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/CoinRain'
+   5 | import TypingText from "@/components/TypingText";
+   6 | import InteractiveGrid from "@/components/InteractiveGrid";
+>  7 | import CoinRain from "@/components/CoinRain";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import GlassShine from "@/components/GlassShine";
+   9 |
+  10 | const SLOGANS = [
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[00:00:06.143] Browser ERROR   ./src/app/page.tsx:8:1
+Module not found: Can't resolve '@/components/GlassShine'
+   6 | import InteractiveGrid from "@/components/InteractiveGrid";
+   7 | import CoinRain from "@/components/CoinRain";
+>  8 | import GlassShine from "@/components/GlassShine";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 |
+  10 | const SLOGANS = [
+  11 |   "Your heartbeat. On-chain. Zero knowledge.",
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[00:00:06.143] Browser ERROR   ./src/app/page.tsx:6:1
+Module not found: Can't resolve '@/components/InteractiveGrid'
+  4 | import PixelHeart from "@/components/PixelHeart";
+  5 | import TypingText from "@/components/TypingText";
+> 6 | import InteractiveGrid from "@/components/InteractiveGrid";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import CoinRain from "@/components/CoinRain";
+  8 | import GlassShine from "@/components/GlassShine";
+  9 |
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[00:00:06.143] Browser ERROR   ./src/app/page.tsx:3:1
+Module not found: Can't resolve '@/components/Navbar'
+  1 | "use client";
+  2 |
+> 3 | import Navbar from "@/components/Navbar";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import PixelHeart from "@/components/PixelHeart";
+  5 | import TypingText from "@/components/TypingText";
+  6 | import InteractiveGrid from "@/components/InteractiveGrid";
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[00:00:06.143] Browser ERROR   ./src/app/page.tsx:4:1
+Module not found: Can't resolve '@/components/PixelHeart'
+  2 |
+  3 | import Navbar from "@/components/Navbar";
+> 4 | import PixelHeart from "@/components/PixelHeart";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import TypingText from "@/components/TypingText";
+  6 | import InteractiveGrid from "@/components/InteractiveGrid";
+  7 | import CoinRain from "@/components/CoinRain";
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[00:00:06.143] Browser ERROR   ./src/app/page.tsx:5:1
+Module not found: Can't resolve '@/components/TypingText'
+  3 | import Navbar from "@/components/Navbar";
+  4 | import PixelHeart from "@/components/PixelHeart";
+> 5 | import TypingText from "@/components/TypingText";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 | import InteractiveGrid from "@/components/InteractiveGrid";
+  7 | import CoinRain from "@/components/CoinRain";
+  8 | import GlassShine from "@/components/GlassShine";
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
